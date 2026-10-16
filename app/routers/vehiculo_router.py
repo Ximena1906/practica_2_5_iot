@@ -1,12 +1,14 @@
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 
 from app.services.vehiculo_service import VehiculoService
+from app.security import verificar_admin
 
 from app.websocket.websocket_manager import websocket_manager
 
 import asyncio
 
+from pydantic import BaseModel, Field
 
 
 
@@ -35,6 +37,87 @@ def obtener_bloqueo_vehiculo(id_vehiculo: int):
 
     return bloqueos_vehiculos[id_vehiculo]
 
+class VehiculoCrear(BaseModel):
+    nombre: str = Field(min_length=1, max_length=80)
+    modelo: str = Field(min_length=1, max_length=80)
+    descripcion: str = Field(default="", max_length=255)
+    microcontrolador: str = Field(min_length=1, max_length=50)
+
+class VehiculoActualizar(BaseModel):
+    nombre: str = Field(min_length=1, max_length=80)
+    modelo: str = Field(min_length=1, max_length=80)
+    descripcion: str = Field(default="", max_length=255)
+    microcontrolador: str = Field(min_length=1, max_length=50)
+    activo: bool
+
+class ComandoCrear(BaseModel):
+    nombre: str = Field(min_length=1, max_length=60)
+    codigo: int = Field(ge=1)
+    descripcion: str = Field(default="", max_length=255)
+
+class ComandoActualizar(BaseModel):
+    nombre: str = Field(min_length=1, max_length=60)
+    codigo: int = Field(ge=1)
+    descripcion: str = Field(default="", max_length=255)
+    activo: bool
+
+class DemoCrear(BaseModel):
+    nombre: str = Field(min_length=1, max_length=80)
+    descripcion: str = Field(default="", max_length=255)
+
+class DemoActualizar(BaseModel):
+    nombre: str = Field(min_length=1, max_length=80)
+    descripcion: str = Field(default="", max_length=255)
+    activo: bool
+
+class MovimientoDemoCrear(BaseModel):
+    id_comando: int = Field(gt=0)
+    orden: int = Field(ge=1)
+    duracion_ms: int = Field(gt=0)
+    pausa_ms: int = Field(ge=0)
+
+class MovimientoDemoActualizar(BaseModel):
+    id_comando: int = Field(gt=0)
+    orden: int = Field(ge=1)
+    duracion_ms: int = Field(gt=0)
+    pausa_ms: int = Field(ge=0)
+
+
+
+
+@router.post("/", dependencies=[Depends(verificar_admin)])
+def crear_vehiculo(datos: VehiculoCrear):
+    """
+    Registra un vehículo IoT.
+    Requiere clave de administración.
+    """
+
+    try:
+        servicio = VehiculoService()
+
+        resultado = servicio.crear_vehiculo(
+            datos.nombre,
+            datos.modelo,
+            datos.descripcion,
+            datos.microcontrolador
+        )
+
+        if not resultado["exito"]:
+            raise HTTPException(
+                status_code=400,
+                detail=resultado["mensaje"]
+            )
+
+        return resultado
+
+    except HTTPException:
+        raise
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Error al crear el vehículo"
+        )
 
 
 @router.get("/")
@@ -165,7 +248,10 @@ def consultar_estado_vehiculo(id_vehiculo: int):
         )
 
 
-@router.post("/{id_vehiculo}/movimientos/{id_comando}")
+@router.post(
+    "/{id_vehiculo}/movimientos/{id_comando}",
+    dependencies=[Depends(verificar_admin)]
+)
 async def ejecutar_movimiento_individual(
     id_vehiculo: int,
     id_comando: int
@@ -380,7 +466,10 @@ def consultar_movimientos_demo(
         )
 
 
-@router.post("/{id_vehiculo}/demos/{id_demo}/ejecutar")
+@router.post(
+    "/{id_vehiculo}/demos/{id_demo}/ejecutar",
+    dependencies=[Depends(verificar_admin)]
+)
 async def ejecutar_demo_vehiculo(
     id_vehiculo: int,
     id_demo: int
@@ -466,3 +555,411 @@ async def ejecutar_demo_vehiculo(
         # Liberar el vehículo incluso si ocurre un error
         async with bloqueo_demos:
             demos_en_ejecucion.discard(id_vehiculo)
+
+@router.put("/{id_vehiculo}", dependencies=[Depends(verificar_admin)])
+def actualizar_vehiculo(
+    id_vehiculo: int,
+    datos: VehiculoActualizar
+):
+    """
+    Actualiza los datos de un vehículo IoT.
+    Requiere clave de administración.
+    """
+
+    try:
+        servicio = VehiculoService()
+
+        resultado = servicio.actualizar_vehiculo(
+            id_vehiculo,
+            datos.nombre,
+            datos.modelo,
+            datos.descripcion,
+            datos.microcontrolador,
+            int(datos.activo)
+        )
+
+        if not resultado["exito"]:
+            raise HTTPException(
+                status_code=400,
+                detail=resultado["mensaje"]
+            )
+
+        return resultado
+
+    except HTTPException:
+        raise
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Error al actualizar el vehículo"
+        )
+
+@router.delete("/{id_vehiculo}", dependencies=[Depends(verificar_admin)])
+def eliminar_vehiculo(id_vehiculo: int):
+    """
+    Elimina un vehículo IoT.
+    Requiere clave de administración.
+    """
+
+    try:
+        servicio = VehiculoService()
+
+        resultado = servicio.eliminar_vehiculo(id_vehiculo)
+
+        if not resultado["exito"]:
+            raise HTTPException(
+                status_code=400,
+                detail=resultado["mensaje"]
+            )
+
+        return resultado
+
+    except HTTPException:
+        raise
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Error al eliminar el vehículo"
+        )
+
+@router.post(
+    "/{id_vehiculo}/comandos",
+    dependencies=[Depends(verificar_admin)]
+)
+def crear_comando(
+    id_vehiculo: int,
+    datos: ComandoCrear
+):
+    """
+    Registra un comando para un vehículo IoT.
+    Requiere clave de administración.
+    """
+
+    try:
+        servicio = VehiculoService()
+
+        resultado = servicio.crear_comando(
+            id_vehiculo,
+            datos.nombre,
+            datos.codigo,
+            datos.descripcion
+        )
+
+        if not resultado["exito"]:
+            raise HTTPException(
+                status_code=400,
+                detail=resultado["mensaje"]
+            )
+
+        return resultado
+
+    except HTTPException:
+        raise
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Error al crear el comando"
+        )
+
+@router.put(
+    "/comandos/{id_comando}",
+    dependencies=[Depends(verificar_admin)]
+)
+def actualizar_comando(
+    id_comando: int,
+    datos: ComandoActualizar
+):
+    """
+    Actualiza un comando IoT existente.
+    Requiere clave de administración.
+    """
+
+    try:
+        servicio = VehiculoService()
+
+        resultado = servicio.actualizar_comando(
+            id_comando,
+            datos.nombre,
+            datos.codigo,
+            datos.descripcion,
+            int(datos.activo)
+        )
+
+        if not resultado["exito"]:
+            raise HTTPException(
+                status_code=400,
+                detail=resultado["mensaje"]
+            )
+
+        return resultado
+
+    except HTTPException:
+        raise
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Error al actualizar el comando"
+        )
+
+@router.delete(
+    "/comandos/{id_comando}",
+    dependencies=[Depends(verificar_admin)]
+)
+def eliminar_comando(id_comando: int):
+    """
+    Elimina un comando IoT.
+    Requiere clave de administración.
+    """
+
+    try:
+        servicio = VehiculoService()
+
+        resultado = servicio.eliminar_comando(id_comando)
+
+        if not resultado["exito"]:
+            raise HTTPException(
+                status_code=400,
+                detail=resultado["mensaje"]
+            )
+
+        return resultado
+
+    except HTTPException:
+        raise
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Error al eliminar el comando"
+        )
+
+@router.post(
+    "/{id_vehiculo}/demos",
+    dependencies=[Depends(verificar_admin)]
+)
+def crear_demo(
+    id_vehiculo: int,
+    datos: DemoCrear
+):
+    """
+    Registra una nueva demostración para un vehículo IoT.
+    Requiere clave de administración.
+    """
+
+    try:
+        servicio = VehiculoService()
+
+        resultado = servicio.crear_demo(
+            id_vehiculo,
+            datos.nombre,
+            datos.descripcion
+        )
+
+        if not resultado["exito"]:
+            raise HTTPException(
+                status_code=400,
+                detail=resultado["mensaje"]
+            )
+
+        return resultado
+
+    except HTTPException:
+        raise
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Error al crear la demostración"
+        )
+
+@router.put(
+    "/demos/{id_demo}",
+    dependencies=[Depends(verificar_admin)]
+)
+def actualizar_demo(
+    id_demo: int,
+    datos: DemoActualizar
+):
+    """
+    Actualiza una demostración IoT existente.
+    Requiere clave de administración.
+    """
+
+    try:
+        servicio = VehiculoService()
+
+        resultado = servicio.actualizar_demo(
+            id_demo,
+            datos.nombre,
+            datos.descripcion,
+            int(datos.activo)
+        )
+
+        if not resultado["exito"]:
+            raise HTTPException(
+                status_code=400,
+                detail=resultado["mensaje"]
+            )
+
+        return resultado
+
+    except HTTPException:
+        raise
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Error al actualizar la demostración"
+        )
+
+@router.delete(
+    "/demos/{id_demo}",
+    dependencies=[Depends(verificar_admin)]
+)
+def eliminar_demo(id_demo: int):
+    """
+    Elimina una demostración IoT.
+    Requiere clave de administración.
+    """
+
+    try:
+        servicio = VehiculoService()
+
+        resultado = servicio.eliminar_demo(id_demo)
+
+        if not resultado["exito"]:
+            raise HTTPException(
+                status_code=400,
+                detail=resultado["mensaje"]
+            )
+
+        return resultado
+
+    except HTTPException:
+        raise
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Error al eliminar la demostración"
+        )
+
+@router.post(
+    "/demos/{id_demo}/movimientos",
+    dependencies=[Depends(verificar_admin)]
+)
+def agregar_movimiento_demo(
+    id_demo: int,
+    datos: MovimientoDemoCrear
+):
+    """
+    Agrega un movimiento a una demostración IoT.
+    Requiere clave de administración.
+    """
+
+    try:
+        servicio = VehiculoService()
+
+        resultado = servicio.agregar_movimiento_demo(
+            id_demo,
+            datos.id_comando,
+            datos.orden,
+            datos.duracion_ms,
+            datos.pausa_ms
+        )
+
+        if not resultado["exito"]:
+            raise HTTPException(
+                status_code=400,
+                detail=resultado["mensaje"]
+            )
+
+        return resultado
+
+    except HTTPException:
+        raise
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Error al agregar el movimiento a la DEMO"
+        )
+
+@router.put(
+    "/demos/movimientos/{id_demo_movimiento}",
+    dependencies=[Depends(verificar_admin)]
+)
+def actualizar_movimiento_demo(
+    id_demo_movimiento: int,
+    datos: MovimientoDemoActualizar
+):
+    """
+    Actualiza un movimiento de una demostración IoT.
+    Requiere clave de administración.
+    """
+
+    try:
+        servicio = VehiculoService()
+
+        resultado = servicio.actualizar_movimiento_demo(
+            id_demo_movimiento,
+            datos.id_comando,
+            datos.orden,
+            datos.duracion_ms,
+            datos.pausa_ms
+        )
+
+        if not resultado["exito"]:
+            raise HTTPException(
+                status_code=400,
+                detail=resultado["mensaje"]
+            )
+
+        return resultado
+
+    except HTTPException:
+        raise
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Error al actualizar el movimiento de la DEMO"
+        )
+
+@router.delete(
+    "/demos/movimientos/{id_demo_movimiento}",
+    dependencies=[Depends(verificar_admin)]
+)
+def eliminar_movimiento_demo(id_demo_movimiento: int):
+    """
+    Elimina un movimiento de una demostración IoT.
+    Requiere clave de administración.
+    """
+
+    try:
+        servicio = VehiculoService()
+
+        resultado = servicio.eliminar_movimiento_demo(
+            id_demo_movimiento
+        )
+
+        if not resultado["exito"]:
+            raise HTTPException(
+                status_code=400,
+                detail=resultado["mensaje"]
+            )
+
+        return resultado
+
+    except HTTPException:
+        raise
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Error al eliminar el movimiento de la DEMO"
+        )

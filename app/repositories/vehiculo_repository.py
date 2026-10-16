@@ -231,3 +231,388 @@ class VehiculoRepository:
 
         finally:
             conexion.close()
+
+    def crear_vehiculo(self, nombre, modelo, descripcion, microcontrolador):
+        """
+        Crea un nuevo vehículo IoT mediante
+        el procedimiento almacenado sp_crear_vehiculo.
+        """
+
+        conexion = self.db.conectar()
+
+        try:
+            with conexion.cursor() as cursor:
+                cursor.callproc(
+                    "sp_crear_vehiculo",
+                    (
+                        nombre,
+                        modelo,
+                        descripcion,
+                        microcontrolador
+                    )
+                )
+
+            conexion.commit()
+            return True
+
+        except Exception:
+            conexion.rollback()
+            raise
+
+        finally:
+            conexion.close()
+
+    def actualizar_vehiculo(
+        self,
+        id_vehiculo,
+        nombre,
+        modelo,
+        descripcion,
+        microcontrolador,
+        activo
+    ):
+        """
+        Actualiza un vehículo mediante
+        el procedimiento sp_actualizar_vehiculo.
+        """
+
+        conexion = self.db.conectar()
+
+        try:
+            with conexion.cursor() as cursor:
+                cursor.callproc(
+                    "sp_actualizar_vehiculo",
+                    (
+                        id_vehiculo,
+                        nombre,
+                        modelo,
+                        descripcion,
+                        microcontrolador,
+                        activo
+                    )
+                )
+
+            conexion.commit()
+            return True
+
+        except Exception:
+            conexion.rollback()
+            raise
+
+        finally:
+            conexion.close()
+
+    def eliminar_vehiculo(self, id_vehiculo):
+        """
+        Elimina un vehículo mediante
+        el procedimiento sp_eliminar_vehiculo.
+        """
+
+        conexion = self.db.conectar()
+
+        try:
+            with conexion.cursor() as cursor:
+                cursor.callproc(
+                    "sp_eliminar_vehiculo",
+                    (id_vehiculo,)
+                )
+
+            conexion.commit()
+            return True
+
+        except Exception:
+            conexion.rollback()
+            raise
+
+        finally:
+            conexion.close()
+
+    def crear_comando(
+        self,
+        id_vehiculo,
+        nombre,
+        codigo,
+        descripcion
+    ):
+        """
+        Crea un comando para un vehículo IoT
+        mediante sp_crear_comando.
+        """
+
+        conexion = self.db.conectar()
+
+        try:
+            with conexion.cursor() as cursor:
+                cursor.callproc(
+                    "sp_crear_comando",
+                    (
+                        id_vehiculo,
+                        nombre,
+                        codigo,
+                        descripcion
+                    )
+                )
+
+            conexion.commit()
+            return True
+
+        except Exception:
+            conexion.rollback()
+            raise
+
+        finally:
+            conexion.close()
+
+    def actualizar_comando(
+        self,
+        id_comando,
+        nombre,
+        codigo,
+        descripcion,
+        activo
+    ):
+        """
+        Actualiza un comando IoT mediante
+        el procedimiento sp_actualizar_comando.
+        """
+
+        conexion = self.db.conectar()
+
+        try:
+            with conexion.cursor() as cursor:
+                cursor.callproc(
+                    "sp_actualizar_comando",
+                    (
+                        id_comando,
+                        nombre,
+                        codigo,
+                        descripcion,
+                        activo
+                    )
+                )
+
+            conexion.commit()
+            return True
+
+        except Exception:
+            conexion.rollback()
+            raise
+
+        finally:
+            conexion.close()
+
+    def eliminar_comando(self, id_comando):
+        """
+        Elimina un comando IoT mediante
+        el procedimiento sp_eliminar_comando.
+        """
+
+        conexion = self.db.conectar()
+
+        try:
+            with conexion.cursor() as cursor:
+                cursor.callproc(
+                    "sp_eliminar_comando",
+                    (id_comando,)
+                )
+
+            conexion.commit()
+            return True
+
+        except Exception:
+            conexion.rollback()
+            raise
+
+        finally:
+            conexion.close()
+
+    def crear_demo(self, id_vehiculo, nombre, descripcion):
+        """
+        Crea una demostración para un vehículo IoT
+        mediante el procedimiento sp_crear_demo.
+        """
+
+        conexion = self.db.conectar()
+
+        try:
+            with conexion.cursor() as cursor:
+                cursor.callproc(
+                    "sp_crear_demo",
+                    (
+                        id_vehiculo,
+                        nombre,
+                        descripcion
+                    )
+                )
+
+            conexion.commit()
+            return True
+
+        except Exception:
+            conexion.rollback()
+            raise
+
+        finally:
+            conexion.close()
+
+    def actualizar_demo(
+        self,
+        id_demo,
+        nombre,
+        descripcion,
+        activo
+    ):
+        """
+        Actualiza una demostración mediante
+        el procedimiento sp_actualizar_demo.
+        """
+
+        conexion = self.db.conectar()
+
+        try:
+            with conexion.cursor() as cursor:
+                cursor.callproc(
+                    "sp_actualizar_demo",
+                    (
+                        id_demo,
+                        nombre,
+                        descripcion,
+                        activo
+                    )
+                )
+
+            conexion.commit()
+            return True
+
+        except Exception:
+            conexion.rollback()
+            raise
+
+        finally:
+            conexion.close()
+
+    def eliminar_demo(self, id_demo):
+        """
+        Elimina una DEMO mediante
+        el procedimiento sp_eliminar_demo.
+        """
+
+        conexion = self.db.conectar()
+
+        try:
+            with conexion.cursor() as cursor:
+                cursor.callproc(
+                    "sp_eliminar_demo",
+                    (id_demo,)
+                )
+
+            conexion.commit()
+            return True
+
+        except Exception:
+            conexion.rollback()
+            raise
+
+        finally:
+            conexion.close()
+
+    def agregar_movimiento_demo(
+        self,
+        id_demo,
+        id_comando,
+        orden,
+        duracion_ms,
+        pausa_ms
+    ):
+        """
+        Agrega un movimiento a una DEMO mediante
+        el procedimiento sp_agregar_movimiento_demo.
+        """
+
+        conexion = self.db.conectar()
+
+        try:
+            with conexion.cursor() as cursor:
+                cursor.callproc(
+                    "sp_agregar_movimiento_demo",
+                    (
+                        id_demo,
+                        id_comando,
+                        orden,
+                        duracion_ms,
+                        pausa_ms
+                    )
+                )
+
+            conexion.commit()
+            return True
+
+        except Exception:
+            conexion.rollback()
+            raise
+
+        finally:
+            conexion.close()
+
+    def actualizar_movimiento_demo(
+        self,
+        id_demo_movimiento,
+        id_comando,
+        orden,
+        duracion_ms,
+        pausa_ms
+    ):
+        """
+        Actualiza un movimiento de una DEMO mediante
+        el procedimiento sp_actualizar_movimiento_demo.
+        """
+
+        conexion = self.db.conectar()
+
+        try:
+            with conexion.cursor() as cursor:
+                cursor.callproc(
+                    "sp_actualizar_movimiento_demo",
+                    (
+                        id_demo_movimiento,
+                        id_comando,
+                        orden,
+                        duracion_ms,
+                        pausa_ms
+                    )
+                )
+
+            conexion.commit()
+            return True
+
+        except Exception:
+            conexion.rollback()
+            raise
+
+        finally:
+            conexion.close()
+
+    def eliminar_movimiento_demo(self, id_demo_movimiento):
+        """
+        Elimina un movimiento de una DEMO mediante
+        el procedimiento sp_eliminar_movimiento_demo.
+        """
+
+        conexion = self.db.conectar()
+
+        try:
+            with conexion.cursor() as cursor:
+                cursor.callproc(
+                    "sp_eliminar_movimiento_demo",
+                    (id_demo_movimiento,)
+                )
+
+            conexion.commit()
+            return True
+
+        except Exception:
+            conexion.rollback()
+            raise
+
+        finally:
+            conexion.close()
