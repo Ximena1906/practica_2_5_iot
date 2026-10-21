@@ -4,7 +4,6 @@ from fastapi import APIRouter, HTTPException, Depends
 from app.services.vehiculo_service import VehiculoService
 from app.security import verificar_admin
 
-from app.websocket.websocket_manager import websocket_manager
 from app.websocket.notification_client import enviar_notificacion_interna
 
 import asyncio
@@ -504,9 +503,9 @@ async def ejecutar_demo_vehiculo(
     try:
         servicio = VehiculoService()
 
-        # Enviar eventos a los clientes del vehículo
+        # Enviar eventos al servidor WebSocket del puerto 8765
         async def enviar_evento(evento):
-            await websocket_manager.enviar_vehiculo(
+            await enviar_notificacion_interna(
                 id_vehiculo,
                 evento
             )
@@ -531,8 +530,8 @@ async def ejecutar_demo_vehiculo(
                 detail=resultado["mensaje"]
             )
 
-        # Notificar que terminó correctamente
-        await websocket_manager.enviar_vehiculo(
+        # Notificar que terminó correctamente mediante el servidor WebSocket del puerto 8765
+        await enviar_notificacion_interna(
             id_vehiculo,
             {
                 "tipo": "DEMO_FINALIZADO",
