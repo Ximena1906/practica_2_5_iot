@@ -5,6 +5,7 @@ from app.services.vehiculo_service import VehiculoService
 from app.security import verificar_admin
 
 from app.websocket.websocket_manager import websocket_manager
+from app.websocket.notification_client import enviar_notificacion_interna
 
 import asyncio
 
@@ -315,10 +316,10 @@ async def ejecutar_movimiento_individual(
                 status_code=codigo,
                 detail=mensaje
             )
-
-        # Notificar a los clientes conectados
+        
+        # Notificar al servidor WebSocket del puerto 8765
         # después de guardar el movimiento
-        await websocket_manager.enviar_vehiculo(
+        await enviar_notificacion_interna(
             id_vehiculo,
             {
                 "tipo": "MOVIMIENTO_INDIVIDUAL",
@@ -327,6 +328,7 @@ async def ejecutar_movimiento_individual(
                 "mensaje": "Movimiento individual ejecutado"
             }
         )
+        
 
         return resultado
 

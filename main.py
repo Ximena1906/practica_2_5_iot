@@ -2,9 +2,8 @@
 from fastapi import FastAPI
 
 from app.routers.vehiculo_router import router as vehiculo_router
-
 from app.routers.websocket_router import router as websocket_router
-
+from app.websocket.internal_notifications import router as internal_router
 
 
 app = FastAPI(
@@ -18,6 +17,7 @@ app.include_router(vehiculo_router)
 
 app.include_router(websocket_router)
 
+app.include_router(internal_router)
 
 
 @app.get("/", tags=["Inicio"])
