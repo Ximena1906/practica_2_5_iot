@@ -3,7 +3,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
-
+from app.routers.vinculacion_router import router as vinculacion_router
 from app.routers.vehiculo_router import router as vehiculo_router
 from app.routers.websocket_router import router as websocket_router
 from app.websocket.internal_notifications import router as internal_router
@@ -15,6 +15,21 @@ app = FastAPI(
     version="1.0.0"
 )
 
+from app.autenticacion.sesiones import inicializar_base_sesiones
+from app.autenticacion.vinculacion import (
+    inicializar_tabla_vinculacion,
+    inicializar_tabla_intentos,
+    inicializar_tabla_limite_global,
+)
+
+
+@app.on_event("startup")
+def inicializar_autenticacion():
+    inicializar_base_sesiones()
+    inicializar_tabla_vinculacion()
+    inicializar_tabla_intentos()
+    inicializar_tabla_limite_global()
+
 
 app.include_router(vehiculo_router)
 
@@ -22,6 +37,7 @@ app.include_router(websocket_router)
 
 app.include_router(internal_router)
 
+app.include_router(vinculacion_router)
 
 # Carpeta donde se encuentra Pink Night Control
 BASE_DIR = Path(__file__).resolve().parent

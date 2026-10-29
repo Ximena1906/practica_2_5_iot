@@ -20,3 +20,15 @@ __pycache__/
 # Archivos del sistema
 .DS_Store
 Thumbs.db
+
+# Copias de seguridad locales
+websocket_router_backup.py
+
+# Sesiones privadas de dispositivos
+app/autenticacion/sesiones/
+
+# Base de datos privada de autenticacion
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
