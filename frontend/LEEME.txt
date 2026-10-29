@@ -1,0 +1,8 @@
+EXCAVADORA PINK NIGHT - MONITOREO AWS
+
+1. Abre index.html en Chrome o Edge.
+2. Haz clic en Conectar a AWS.
+3. Verifica el mensaje CONEXION en el registro.
+4. Los botones son simulacion y NO transmiten comandos.
+
+ADVERTENCIA: el servidor actual no tiene autenticacion. No se debe habilitar control fisico hasta agregar autenticacion, control de autorizacion y parada segura.

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Excavadora IoT | Control Studio</title>
+<style>
+:root{--bg:#0d1020;--panel:#191e34;--line:#343b58;--text:#f9f5ff;--muted:#aeb3cd;--pink:#ff76b5;--pink2:#c8529d;--mint:#74e0c5}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0%,#3b214b 0,transparent 38%),var(--bg);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}.shell{max-width:1120px;margin:auto;padding:28px 22px 42px}header{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:28px}.brand{display:flex;align-items:center;gap:13px}.logo{width:51px;height:51px;border-radius:17px;background:linear-gradient(140deg,#ffb3d9,#e25ca4);display:grid;place-items:center;font-size:29px;box-shadow:0 8px 30px #ff76b533}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--pink);font-weight:800}.brand h1{font-size:22px;margin:4px 0 0}.status{border:1px solid var(--line);background:#ffffff08;border-radius:99px;padding:10px 16px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px}.dot{width:9px;height:9px;border-radius:50%;background:#ffb56b}.hero{border:1px solid #5c3c62;background:linear-gradient(125deg,#382343,#191e34 65%);padding:28px;border-radius:26px;display:grid;grid-template-columns:1.3fr .7fr;gap:16px;align-items:center;margin-bottom:22px}.hero h2{font-size:clamp(25px,4vw,40px);margin:9px 0}.hero p{color:#d5c8dc;max-width:550px;line-height:1.6}.machine{font-size:105px;text-align:center;filter:drop-shadow(0 12px 25px #0008)}.chip{display:inline-block;border:1px solid #ff9ac477;border-radius:99px;padding:7px 12px;color:#ffb8d9;font-size:12px;font-weight:700}.layout{display:grid;grid-template-columns:1.15fr .85fr;gap:20px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:23px;padding:23px;box-shadow:0 18px 50px #0002}.panel h3{font-size:16px;margin:0 0 5px}.subtitle{font-size:12px;color:var(--muted);margin:0 0 21px}.pad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:370px;margin:0 auto 20px}.btn{background:#252b46;color:#fff;border:1px solid #49516f;border-radius:17px;padding:16px 10px;min-height:67px;font:inherit;font-weight:750;cursor:pointer;transition:transform .12s,background .12s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}.btn:hover{background:#353c5c;transform:translateY(-2px)}.btn:active{transform:scale(.97)}.btn .ico{font-size:21px}.btn small{font-size:11px;color:#c7cbe0}.btn.primary{background:linear-gradient(140deg,#fa83b9,#c94f99);border-color:#ff9ec8;color:#1e1022}.btn.primary small{color:#41243c}.blank{visibility:hidden}.stop{width:100%;background:#47243c;border:1px solid #ff7ca4;color:#ffd6e4;border-radius:15px;padding:17px;font-size:15px;font-weight:850;letter-spacing:1px;cursor:pointer}.stop:hover{background:#63304f}.actions{display:grid;grid-template-columns:1fr 1fr;gap:11px}.actions .btn{min-height:80px}.secondary{background:#232943}.info{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:16px;margin-top:19px;color:var(--muted);font-size:12px}.log{margin-top:20px;min-height:76px;background:#101528;border:1px dashed #414963;border-radius:14px;padding:13px;color:#b9c3da;font:12px/1.7 Consolas,monospace}.footer{text-align:center;margin-top:24px;color:#8c92af;font-size:12px}.simulation{color:var(--mint);font-weight:800}button:focus-visible{outline:3px solid var(--pink);outline-offset:3px}@media(max-width:760px){.hero{grid-template-columns:1fr}.machine{font-size:68px}.layout{grid-template-columns:1fr}.shell{padding:18px 14px}.panel{padding:18px}.hero{padding:22px}.pad{gap:9px}}
+</style>
+</head>
+<body><main class="shell"><header><div class="brand"><div class="logo">🚜</div><div><div class="eyebrow">IoT Control Studio</div><h1>Excavadora <span style="color:var(--pink)">X</span></h1></div></div><div class="status"><span class="dot"></span> <span id="connection-label">Desconectado de AWS</span></div></header>
+<section class="hero"><div><span class="chip">✦ NUEVO DISEÑO · EDICIÓN ROSA NOCTURNA</span><h2>Tu excavadora.<br><span style="color:#ff9dcc">Tu centro de control.</span></h2><p>Un tablero moderno para visualizar los movimientos, la garra y los accesorios. Conexión de monitoreo en tiempo real con AWS. Los botones permanecen en simulación y no activan el equipo.</p></div><div class="machine" aria-hidden="true">🚜</div></section>
+<section class="panel" style="margin-bottom:20px"><h3>☁️ Conexión con AWS</h3><p class="subtitle">Monitoreo WebSocket seguro · Vehículo 1 · Solo lectura</p><div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center"><button class="btn primary" id="connect" type="button" style="min-height:48px">Conectar a AWS</button><button class="btn" id="disconnect" type="button" style="min-height:48px" disabled>Desconectar</button><span id="network-state" role="status" aria-live="polite" style="font-size:13px;color:var(--muted)">Sin conexión</span></div><div class="log" id="network-log" role="log" aria-live="polite">[AWS] Sin conexión. Esta vista no transmite comandos.</div></section><div class="layout"><section class="panel"><h3>🎮 Movimiento</h3><p class="subtitle">Panel direccional para el vehículo</p><div class="pad"><div class="blank"></div><button class="btn primary" data-command="W"><span class="ico">↑</span>Avanzar<small>W</small></button><div class="blank"></div><button class="btn" data-command="A"><span class="ico">←</span>Izquierda<small>A</small></button><button class="btn" data-command="S"><span class="ico">↓</span>Retroceder<small>S</small></button><button class="btn" data-command="D"><span class="ico">→</span>Derecha<small>D</small></button></div><button class="stop" data-command="Q">■ DETENER · Q</button><div class="info"><span>Estado del control</span><span class="simulation">● CONTROLES EN SIMULACIÓN</span></div></section>
+<section class="panel"><h3>🦾 Accesorios y funciones</h3><p class="subtitle">Controles adicionales de la excavadora</p><div class="actions"><button class="btn secondary" data-command="1"><span class="ico">↥</span>Garra arriba<small>1</small></button><button class="btn secondary" data-command="2"><span class="ico">↧</span>Garra abajo<small>2</small></button><button class="btn secondary" data-command="5"><span class="ico">↶</span>Giro izquierdo<small>5</small></button><button class="btn secondary" data-command="6"><span class="ico">↷</span>Giro derecho<small>6</small></button><button class="btn secondary" data-command="4"><span class="ico">♫</span>Bocina<small>4</small></button><button class="btn secondary" data-command="8"><span class="ico">☀</span>Luces<small>8</small></button><button class="btn secondary" data-command="7"><span class="ico">⚡</span>Velocidad<small>7</small></button><button class="btn secondary" data-command="3"><span class="ico">✧</span>Demo<small>3</small></button></div><div class="log" id="log" role="status" aria-live="polite">[SIMULACIÓN] Panel listo. Pulsa «Conectar a AWS» para monitorear mensajes. Los botones no envían comandos.</div></section></div><div class="footer">Excavadora IoT · Monitoreo WSS en vivo · Controles en simulación · Sin control físico</div></main>
+<script>
+const WSS_URL = 'wss://vehiculo-iot-xime.duckdns.org:8443/ws/vehiculos/1';
+let socket = null;
+const connectionLabel = document.getElementById('connection-label');
+const networkState = document.getElementById('network-state');
+const networkLog = document.getElementById('network-log');
+const connectBtn = document.getElementById('connect');
+const disconnectBtn = document.getElementById('disconnect');
+function report(message) {
+  networkLog.textContent = '[' + new Date().toLocaleTimeString('es-MX') + '] ' + message + '\n' + networkLog.textContent.slice(0, 1700);
+}
+function setState(state) {
+  networkState.textContent = state;
+  connectionLabel.textContent = state;
+}
+connectBtn.addEventListener('click', () => {
+  if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) return;
+  try {
+    socket = new WebSocket(WSS_URL);
+    setState('Conectando a AWS...');
+    connectBtn.disabled = true;
+    disconnectBtn.disabled = false;
+    socket.addEventListener('open', () => {
+      setState('Conectado a AWS · Solo lectura');
+      report('WSS conectado. No se enviarán comandos desde esta interfaz.');
+    });
+    socket.addEventListener('message', event => {
+      try {
+        const payload = JSON.parse(event.data);
+        report('Mensaje recibido: ' + JSON.stringify(payload));
+      } catch (_) { report('Mensaje recibido: ' + String(event.data).slice(0, 300)); }
+    });
+    socket.addEventListener('error', () => report('Error de conexión WSS. Revisa internet, certificado y servidor.'));
+    socket.addEventListener('close', event => {
+      setState('Desconectado de AWS');
+      connectBtn.disabled = false;
+      disconnectBtn.disabled = true;
+      report('Conexión cerrada (código ' + event.code + ').');
+    });
+  } catch (err) {
+    setState('Error de conexión');
+    connectBtn.disabled = false;
+    disconnectBtn.disabled = true;
+    report('No fue posible abrir WSS: ' + err.message);
+  }
+});
+disconnectBtn.addEventListener('click', () => { if (socket) socket.close(1000, 'Desconexión manual'); });
+window.addEventListener('pagehide', () => { if (socket) socket.close(); });
+document.querySelectorAll('[data-command]').forEach(b=>b.addEventListener('click',()=>{const now=new Date().toLocaleTimeString('es-MX');document.getElementById('log').textContent=`[${now}] Comando ${b.dataset.command} simulado. No se envió a AWS.`}));</script></body></html>
